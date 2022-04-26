@@ -20,10 +20,9 @@ from itertools import chain
 from typing import Dict, Sequence
 
 import torch
+from avalanche.benchmarks.utils import AvalancheDataset
 from torch.utils.data import RandomSampler
 from torch.utils.data.dataloader import DataLoader
-
-from avalanche.benchmarks.utils import AvalancheDataset
 
 
 def _default_collate_mbatches_fn(mbatches):
@@ -106,6 +105,11 @@ class TaskBalancedDataLoader:
         task_datasets = []
         for task_label in self.data.task_set:
             tdata = self.data.task_set[task_label]
+            tdata = tdata.replace_transforms(
+                transform=self.data.transform,
+                target_transform=self.data.target_transform,
+                group=self.data.current_transform_group
+            )
             task_datasets.append(tdata)
 
         # the iteration logic is implemented by GroupBalancedDataLoader.
